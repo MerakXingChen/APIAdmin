@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>友情链接 -
+        <?php echo $config['title'];?>
+    </title>
+    <meta charset="utf-8" />
+    <meta name="keywords" content="<?php echo $config['keywords'];?>" />
+    <meta name="description" content="<?php echo $config['description'];?>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="./assets/css/mdui.min.css" />
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="stylesheet" href="./assets/css/mdclub.css" />
+    <style>
+        .mdui-img-rounded {
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<?php require "header.html";?>
+
+<div class="mdui-container mdui-m-t-2" style="width:85%">
+    <div class="mdui-row" id="link">
+        <div class="mdui-col-sm-6 mdui-col-md-4" v-if="links" v-for="link in links">
+            <div class="mdui-card mdui-m-y-1 mdui-hoverable" @click.prevent="jump(link.url)">
+                <div class="mdui-card-header">
+                    <img class="mdui-card-header-avatar" :src="link.picurl">
+                    <div class="mdui-card-header-title">{{ link.name }}</div>
+                    <div class="mdui-card-header-subtitle">{{ link.desc }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mc-empty" style="background-image: url('assets/css/994575169312f0027615406d265202f2.png');" v-if="!links">
+            <div class="title">
+                尚未任何友链
+            </div>
+            <div class="description">
+                添加友情链接后，将显示在这里
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<?php require "footer.html";?>
+<script src="./assets/js/jquery.min.js"></script>
+<script src="./assets/js/mdui.min.js"></script>
+<script src="./assets/js/index.js"></script>
+<script src="./assets/js/vue.js"></script>
+<script>
+    let friendlink = new Vue({
+        el: '#link',
+        data: {
+            links: [],
+        },
+        methods: {
+            jump: function(url) {
+                jump(url);
+            }
+        },
+        created() {
+            fetch('./Data/api.php?type=getAllLink&mod=rand')
+                .then(response => response.json())
+                .then(json => {
+                    this.links = json.data;
+                })
+        }
+    });
+</script>
+</div>
+</body>
+
+</html>
