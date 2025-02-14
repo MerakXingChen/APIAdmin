@@ -322,23 +322,35 @@ switch($type){
 		break;
 	
 	/* 获取IP地址具体位置 */
-	case 'getIpAddress':
-		if(!isAdmin()){
-			jsonError(-1, '未登录到后台');
-		}
-		$ip = $_REQUEST['ip'];
-		if(!$ip){
-			jsonError(-1, '参数错误');
-		}else{
-			$data = curl('https://api.oioweb.cn/api/ipaddress.php?host='.$ip, 'GET', 0, 0);
-			$data = json_decode($data, true);
-			if($data['disp'] != ''){
-				json(0, '获取成功', $data['disp']);
-			}else{
-				jsonError(-1, '获取失败');
-			}
-		}
-		break;
+case 'getIpAddress':
+    if (!isAdmin()) {
+        jsonError(-1, '未登录到后台');
+    }
+    $ip = $_REQUEST['ip'];
+    if (!$ip || !filter_var($ip, FILTER_VALIDATE_IP)) {
+        jsonError(-1, 'IP地址格式错误');
+    }
+
+    // 调用VORE-API查询IP地理位置
+    $apiUrl = "https://api.vore.top/api/IPdata?ip={$ip}";
+    $response = curl($apiUrl, 'GET', 0, 0);
+    $data = json_decode($response, true);
+
+    // 检查API返回状态
+    if ($data['code'] !== 200) {
+        jsonError(-1, 'IP查询失败：' . ($data['msg'] ?? '未知错误'));
+    }
+
+    // 拼接地理位置信息
+    $location = [];
+    if (!empty($data['ipdata']['info1'])) $location[] = $data['ipdata']['info1']; // 省份
+    if (!empty($data['ipdata']['info2'])) $location[] = $data['ipdata']['info2']; // 城市
+    if (!empty($data['ipdata']['info3'])) $location[] = $data['ipdata']['info3']; // 区县
+    if (!empty($data['ipdata']['isp'])) $location[] = $data['ipdata']['isp'];     // 运营商
+    $disp = $location ? implode(' · ', $location) : '未知地区';
+
+    json(0, '获取成功', $disp);
+    break;
 		
 	/* 退出登录 */
 	case 'exitLogin':

@@ -158,35 +158,36 @@ switch ($req["type"]) {
 		break;
 
 		/* 登录到后台 */
-	case 'login':
-		$result = $db->query("SELECT * FROM `mxgapi_config`")->fetch_assoc();
-		//print_r($result);
-		if (trim($req["username"]) && trim($req["password"])) {
-		} else {
-			jsonError(-1, '请输入完整');
-		}
-		if (trim($req["username"]) == $result["username"] && trim($req["password"]) == $result["password"]) {
-			$_SESSION['login'] = 'admin';
-			$ip = $_SERVER["REMOTE_ADDR"];
-			$address = curl('https://api.muxiaoguo.cn/api/ip?type=b&ip=' . $ip, 'GET', 0, 0);
-			$address = json_decode($address, true);
-			$address = $address['data']['Geographical_location'];
-			$time = time();
-			if ($address && $ip) {
-				$addLog = $db->query("INSERT INTO `mxgapi_login_log` (`id`, `ip`, `address`, `time`) VALUES (NULL, '{$ip}', '{$address}', '{$time}');");
-				if ($addLog) {
-					jsonError(0, '登录成功');
-				} else {
-					jsonError(-1, '未知错误');
-				}
-			} else {
-				jsonError(-1, '获取失败');
-			}
-			jsonError(0, '登录成功');
-		} else {
-			jsonError(-1, '用户名或密码错误');
-		}
-		break;
+/* 登录到后台 */
+case 'login':
+    $result = $db->query("SELECT * FROM `mxgapi_config`")->fetch_assoc();
+    //print_r($result);
+    if (trim($req["username"]) && trim($req["password"])) {
+    } else {
+        jsonError(-1, '请输入完整');
+    }
+    if (trim($req["username"]) == $result["username"] && trim($req["password"] == $result["password"])) {
+        $_SESSION['login'] = 'admin';
+        $ip = $_SERVER["REMOTE_ADDR"];
+        $address = curl('https://api.vore.top/api/IPdata?ip=' . $ip, 'GET', 0, 0);
+        $address = json_decode($address, true);
+        $address = $address['ipdata']['info1'] . $address['ipdata']['info2'] . $address['ipdata']['info3'];
+        $time = time();
+        if ($address && $ip) {
+            $addLog = $db->query("INSERT INTO `mxgapi_login_log` (`id`, `ip`, `address`, `time`) VALUES (NULL, '{$ip}', '{$address}', '{$time}');");
+            if ($addLog) {
+                jsonError(0, '登录成功');
+            } else {
+                jsonError(-1, '未知错误');
+            }
+        } else {
+            jsonError(-1, '获取失败');
+        }
+        jsonError(0, '登录成功');
+    } else {
+        jsonError(-1, '用户名或密码错误');
+    }
+    break;
 
 		/* 添加友情链接 */
 	case 'add_link':
